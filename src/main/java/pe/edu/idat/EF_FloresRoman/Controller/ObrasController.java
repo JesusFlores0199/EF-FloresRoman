@@ -1,56 +1,43 @@
 package pe.edu.idat.EF_FloresRoman.Controller;
-import pe.edu.idat.EF_FloresRoman.Dto.ObraRegistroDto;
-import pe.edu.idat.EF_FloresRoman.Service.ObrasService;
-import pe.edu.idat.EF_FloresRoman.Repository.Projection.ObraProjection;
-import pe.edu.idat.EF_FloresRoman.Dto.GenericResponseDto;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pe.edu.idat.EF_FloresRoman.Dto.ObraRegistroDto;
+import pe.edu.idat.EF_FloresRoman.Model.Obra;
+import pe.edu.idat.EF_FloresRoman.Service.ObrasService;
 import java.util.List;
 @RestController
 @RequestMapping("/obras")
+@RequiredArgsConstructor
 public class ObrasController {
     private final ObrasService obrasService;
-    public ObrasController(ObrasService obrasService) {
-        this.obrasService = obrasService;
+
+    @GetMapping
+    public List<Obra> listarObras() {
+        return obrasService.getAllObras();
     }
-    // Listar todas las obras
-    @GetMapping("/listar")
-    public ResponseEntity<List<ObraProjection>> obtenerTodasLasObras() {
-        List<ObraProjection> obras = obrasService.obtenerTodasLasObras();
-        return ResponseEntity.ok(obras);
-    }
-    // Obtener una obra por su ID
     @GetMapping("/{id}")
-    public ResponseEntity<ObraProjection> obtenerObraPorId(@PathVariable Long id) {
-        return obrasService.obtenerObraPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Obra> obtenerObraPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(obrasService.getObraById(id));
     }
-    // Registrar una nueva obra
-    @PostMapping("/registrar")
-    public ResponseEntity<GenericResponseDto<String>> registrarObra(@RequestBody ObraRegistroDto obraRegistroDto) {
-        obrasService.registrarObra(obraRegistroDto);
-        GenericResponseDto<String> response = new GenericResponseDto<>();
-        response.setCorrecto(true);
-        response.setMensaje("Obra registrada exitosamente.");
-        return ResponseEntity.ok(response);
+    @PostMapping
+    public ResponseEntity<Obra> registrarObra(@RequestBody ObraRegistroDto dto) {
+        return ResponseEntity.ok(obrasService.registrarObra(dto));
     }
-    // Actualizar una obra existente
-    @PutMapping("/actualizar")
-    public ResponseEntity<GenericResponseDto<String>> actualizarObra(@RequestBody ObraRegistroDto obraRegistroDto) {
-        obrasService.actualizarObra(obraRegistroDto);
-        GenericResponseDto<String> response = new GenericResponseDto<>();
-        response.setCorrecto(true);
-        response.setMensaje("Obra actualizada exitosamente.");
-        return ResponseEntity.ok(response);
+    @PutMapping("/{id}")
+    public ResponseEntity<Obra> actualizarObra(@PathVariable Long id, @RequestBody ObraRegistroDto dto) {
+        return ResponseEntity.ok(obrasService.actualizarObra(id, dto));
     }
-    // Eliminar una obra por su ID
-    @DeleteMapping("/eliminar/{id}")
-    public ResponseEntity<GenericResponseDto<String>> eliminarObra(@PathVariable Long id) {
+    @PatchMapping("/{id}")
+    public ResponseEntity<Obra> actualizarObraParcial(@PathVariable Long id, @RequestBody Obra obra) {
+        Obra obraExistente = obrasService.getObraById(id);
+        if (obra.getNomObra() != null) obraExistente.setNomObra(obra.getNomObra());
+        if (obra.getPiso() != null) obraExistente.setPiso(obra.getPiso());
+        return ResponseEntity.ok(obrasService.actualizarObra(obraExistente));
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminarObra(@PathVariable Long id) {
         obrasService.eliminarObra(id);
-        GenericResponseDto<String> response = new GenericResponseDto<>();
-        response.setCorrecto(true);
-        response.setMensaje("Obra eliminada exitosamente.");
-        return ResponseEntity.ok(response);
+        return ResponseEntity.noContent().build();
     }
 }

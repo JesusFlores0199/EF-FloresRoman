@@ -1,29 +1,47 @@
 package pe.edu.idat.EF_FloresRoman.Service;
-import pe.edu.idat.EF_FloresRoman.Dto.ClienteRegistroDto;
-import pe.edu.idat.EF_FloresRoman.Repository.ClienteRepository;
-import pe.edu.idat.EF_FloresRoman.Repository.Projection.ClienteProjection;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import pe.edu.idat.EF_FloresRoman.Dto.ClienteRegistroDto;
+import pe.edu.idat.EF_FloresRoman.Model.Cliente;
+import pe.edu.idat.EF_FloresRoman.Repository.ClienteRepository;
 import java.util.List;
-import java.util.Optional;
 @Service
+@RequiredArgsConstructor
 public class ClienteService {
+
     private final ClienteRepository clienteRepository;
-    public ClienteService(ClienteRepository clienteRepository) {
-        this.clienteRepository = clienteRepository;
+
+    // Listar todos los clientes
+    public List<Cliente> getAllClientes() {
+        return clienteRepository.findAll();
     }
-    public List<ClienteProjection> obtenerTodosLosClientes() {
-        return clienteRepository.obtenerTodosLosClientes();
+
+    // Obtener cliente por ID
+    public Cliente getClienteById(Long id) {
+        return clienteRepository.findById(id).orElseThrow(() -> new RuntimeException("Cliente no encontrado con ID: " + id));
     }
-    public Optional<ClienteProjection> obtenerClientePorId(Integer id) {
-        return clienteRepository.obtenerClientePorId(id);
+    // Registrar nuevo cliente
+    public Cliente registrarCliente(ClienteRegistroDto dto) {
+        Cliente cliente = new Cliente();
+        cliente.setNombreEmpresa(dto.getNombreEmpresa());
+        return clienteRepository.save(cliente);
     }
-    public void registrarCliente(ClienteRegistroDto clienteRegistroDto) {
-        clienteRepository.registrarCliente(clienteRegistroDto.getNombreEmpresa());
+
+    // Actualizar cliente completo
+    public Cliente actualizarCliente(Long id, ClienteRegistroDto dto) {
+        Cliente cliente = getClienteById(id);
+        cliente.setNombreEmpresa(dto.getNombreEmpresa());
+        return clienteRepository.save(cliente);
     }
-    public void actualizarCliente(ClienteRegistroDto clienteRegistroDto) {
-        clienteRepository.actualizarCliente(clienteRegistroDto.getId(), clienteRegistroDto.getNombreEmpresa());
+
+    // Actualizar parcialmente (desde PATCH)
+    public Cliente actualizarCliente(Cliente cliente) {
+        return clienteRepository.save(cliente);
     }
-    public void eliminarCliente(Integer id) {
-        clienteRepository.eliminarCliente(id);
+
+    // Eliminar cliente
+    public void eliminarCliente(Long id) {
+        Cliente cliente = getClienteById(id);
+        clienteRepository.delete(cliente);
     }
 }

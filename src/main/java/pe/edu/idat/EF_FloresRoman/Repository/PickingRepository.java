@@ -8,14 +8,14 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
-public interface PickingRepository extends JpaRepository<Picking, Integer> {
+public interface PickingRepository extends JpaRepository<Picking, Long> {
     Optional<Picking> findByEstado(String estado);
     // Listar todos los pickings
     @Query("SELECT p FROM Picking p")
     List<PickingProjection> obtenerTodosLosPickings();
     // Obtener un picking por su ID
     @Query("SELECT p FROM Picking p WHERE p.id = :id")
-    Optional<PickingProjection> obtenerPickingPorId(@Param("id") Integer id);
+    Optional<PickingProjection> obtenerPickingPorId(@Param("id") Long id);
     // Registrar un nuevo picking
     @Modifying
     @Transactional
@@ -27,7 +27,7 @@ public interface PickingRepository extends JpaRepository<Picking, Integer> {
     @Modifying
     @Transactional
     @Query(value = "UPDATE picking SET estado = :estado, fecha = :fecha, hora = :hora WHERE id = :id", nativeQuery = true)
-    void actualizarPicking(@Param("id") Integer id,
+    void actualizarPicking(@Param("id") Long id,
                            @Param("estado") String estado,
                            @Param("fecha") String fecha,
                            @Param("hora") String hora);
@@ -35,5 +35,5 @@ public interface PickingRepository extends JpaRepository<Picking, Integer> {
     @Modifying
     @Transactional
     @Query(value = "DELETE FROM picking WHERE id = :id", nativeQuery = true)
-    void eliminarPicking(@Param("id") Integer id);
+    void eliminarPicking(@Param("id") Long id);
 }

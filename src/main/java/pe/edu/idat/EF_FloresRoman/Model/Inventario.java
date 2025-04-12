@@ -10,7 +10,7 @@ import java.time.LocalDate;
 public class Inventario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
     @ManyToOne
     @JoinColumn(name = "id_product", referencedColumnName = "id_product")
     private Producto producto;
@@ -26,10 +26,10 @@ public class Inventario {
         this.cantidadReservada = cantidadReservada;
         this.fecha = fecha;
     }
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
     public Producto getProducto() {

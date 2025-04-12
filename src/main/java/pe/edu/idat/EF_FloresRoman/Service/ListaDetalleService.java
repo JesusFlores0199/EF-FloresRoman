@@ -1,87 +1,62 @@
 package pe.edu.idat.EF_FloresRoman.Service;
 import pe.edu.idat.EF_FloresRoman.Dto.ListaDetalleDto;
-import pe.edu.idat.EF_FloresRoman.Exception.InvalidListaDetalleException;
-import pe.edu.idat.EF_FloresRoman.Model.Lista;
-import pe.edu.idat.EF_FloresRoman.Model.ListaDetalle;
-import pe.edu.idat.EF_FloresRoman.Repository.ListaDetalleRepository;
-import pe.edu.idat.EF_FloresRoman.Repository.ListaRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import java.math.BigDecimal;
-import java.time.LocalDate;
+import pe.edu.idat.EF_FloresRoman.Dto.ListaDetalleRegistroDto;
+import pe.edu.idat.EF_FloresRoman.Exception.ResourceNotFoundException;
+import pe.edu.idat.EF_FloresRoman.Model.*;
+import pe.edu.idat.EF_FloresRoman.Repository.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import java.util.List;
-import java.util.Optional;
+@Service
+@RequiredArgsConstructor
 public class ListaDetalleService {
     private final ListaDetalleRepository listaDetalleRepository;
+    private final ClienteRepository clienteRepository;
+    private final ObrasRepository obrasRepository;
     private final ListaRepository listaRepository;
-    @Autowired
-    public ListaDetalleService(ListaDetalleRepository listaDetalleRepository, ListaRepository listaRepository) {
-        this.listaDetalleRepository = listaDetalleRepository;
-        this.listaRepository = listaRepository;
+    public ListaDetalle registrarListaDetalle(ListaDetalleRegistroDto dto) {
+        Cliente cliente = clienteRepository.findById(dto.getClienteId())
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente con ID " + dto + " no encontrada", "LISTA_NOT_FOUND"));
+        Obra obra = obrasRepository.findById(dto.getObraId())
+                .orElseThrow(() -> new ResourceNotFoundException("Obra con ID " + dto + " no encontrada", "LISTA_NOT_FOUND"));
+        Lista lista = listaRepository.findById(dto.getListaId())
+                .orElseThrow(() -> new ResourceNotFoundException("Lista con ID " + dto + " no encontrada", "LISTA_NOT_FOUND"));
+
+        ListaDetalle detalle = ListaDetalle.builder()
+                .cliente(cliente)
+                .obra(obra)
+                .lista(lista)
+                .fecha(dto.getFecha())
+                .costoUnitario(dto.getCostoUnitario())
+                .costoTotal(dto.getCostoTotal())
+                .build();
+        return listaDetalleRepository.save(detalle);
     }
-    // Crear un nuevo ListaDetalle
-    public ListaDetalle createListaDetalle(ListaDetalleDto listaDetalleDto) {
-        try {
-            ListaDetalle listaDetalle = new ListaDetalle();
-            listaDetalle.setNombreEmpresa(listaDetalleDto.getNombreEmpresa());
-            listaDetalle.setNomObra(listaDetalleDto.getNomObra());
-            listaDetalle.setPiso(listaDetalleDto.getPiso());
-            // Buscar la entidad Lista usando el idLista desde el DTO
-            Optional<Lista> listaOpt = listaRepository.findById(listaDetalleDto.getIdLista());
-            if (listaOpt.isPresent()) {
-                listaDetalle.setLista(listaOpt.get());
-            } else {
-                throw new InvalidListaDetalleException("Lista no encontrada con id: " + listaDetalleDto.getIdLista());
-            }
-            // Establecer la fecha actual de creación
-            listaDetalle.setFecha(LocalDate.now());
-            // Calcular el costo total
-            BigDecimal costoUnitario = listaDetalleDto.getCostoUnitario();
-            Integer cantidad = listaDetalleDto.getCantidad();
-            if (costoUnitario == null || cantidad == null) {
-                throw new InvalidListaDetalleException("Costo unitario o cantidad no pueden ser nulos.");
-            }
-            BigDecimal costoTotal = costoUnitario.multiply(BigDecimal.valueOf(cantidad));
-            listaDetalle.setCostoTotal(costoTotal);
-            // Guardar el objeto ListaDetalle en la base de datos
-            return listaDetalleRepository.save(listaDetalle);
-        } catch (Exception e) {
-            // Manejar la excepción de manera adecuada
-            throw new InvalidListaDetalleException("Error al crear ListaDetalle: " + e.getMessage(), e);
+    public ListaDetalle actualizarListaDetalle(Long id, ListaDetalleRegistroDto dto) {
+        ListaDetalle detalle = listaDetalleRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("ListaDetalle con ID " + id + " no encontrada", "LISTA_NOT_FOUND"));
+        detalle.setCliente(clienteRepository.findById(dto.getClienteId())
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente con ID " + id + " no encontrada", "LISTA_NOT_FOUND")));
+        detalle.setObra(obrasRepository.findById(dto.getObraId())
+                .orElseThrow(() -> new ResourceNotFoundException("Obra con ID " + id + " no encontrada", "LISTA_NOT_FOUND")));
+        detalle.setLista(listaRepository.findById(dto.getListaId())
+                .orElseThrow(() -> new ResourceNotFoundException("Lista con ID " + id + " no encontrada", "LISTA_NOT_FOUND")));
+        detalle.setFecha(dto.getFecha());
+        detalle.setCostoUnitario(dto.getCostoUnitario());
+        detalle.setCostoTotal(dto.getCostoTotal());
+        return listaDetalleRepository.save(detalle);
+    }
+    public void eliminarListaDetalle(Long id) {
+        if (!listaDetalleRepository.existsById(id)) {
+            throw new ResourceNotFoundException("ListaDetalle con ID " + id + " no encontrada", "LISTA_NOT_FOUND");
         }
+        listaDetalleRepository.deleteById(id);
     }
-    // Actualizar un ListaDetalle existente
-    public ListaDetalle updateListaDetalle(Long id, ListaDetalleDto listaDetalleDto) {
-        Optional<ListaDetalle> existingListaDetalle = listaDetalleRepository.findById(id);
-        if (existingListaDetalle.isPresent()) {
-            ListaDetalle listaDetalle = existingListaDetalle.get();
-            listaDetalle.setNombreEmpresa(listaDetalleDto.getNombreEmpresa());
-            listaDetalle.setNomObra(listaDetalleDto.getNomObra());
-            listaDetalle.setPiso(listaDetalleDto.getPiso());
-            listaDetalle.setCostoUnitario(listaDetalleDto.getCostoUnitario());
-            // Calcular el costo total
-            BigDecimal costoTotal = listaDetalleDto.getCostoUnitario().multiply(new BigDecimal(listaDetalleDto.getCantidad()));
-            listaDetalle.setCostoTotal(costoTotal);
-            return listaDetalleRepository.save(listaDetalle);
-        } else {
-            throw new InvalidListaDetalleException("ListaDetalle no encontrado con id: " + id);
-        }
-    }
-    // Eliminar un ListaDetalle
-    public void deleteListaDetalle(Long id) {
-        Optional<ListaDetalle> listaDetalle = listaDetalleRepository.findById(id);
-        if (listaDetalle.isPresent()) {
-            listaDetalleRepository.delete(listaDetalle.get());
-        } else {
-            throw new InvalidListaDetalleException("ListaDetalle no encontrado con id: " + id);
-        }
-    }
-    // Obtener un ListaDetalle por id
-    public ListaDetalle getListaDetalleById(Long id) {
+    public ListaDetalle obtenerPorId(Long id) {
         return listaDetalleRepository.findById(id)
-                .orElseThrow(() -> new InvalidListaDetalleException("ListaDetalle no encontrado con id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ListaDetalle con ID " + id + " no encontrada", "LISTA_NOT_FOUND"));
     }
-    // Obtener todos los ListaDetalles
-    public List<ListaDetalle> getAllListaDetalles() {
-        return listaDetalleRepository.findAll();
+    public List<ListaDetalleDto> obtenerTodos() {
+        return listaDetalleRepository.findAllProjected();
     }
 }

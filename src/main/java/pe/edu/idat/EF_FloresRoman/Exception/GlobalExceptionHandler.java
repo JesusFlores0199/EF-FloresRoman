@@ -26,6 +26,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<GenericResponseDto<String>> handleInvalidClienteException(InvalidClienteException ex) {
         return buildErrorResponse(ex.getMessage(), ex.getErrorCode(), HttpStatus.BAD_REQUEST);
     }
+    // Manejo para ResourceNotFoundException
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<GenericResponseDto<String>> handleResourceNotFoundException(ResourceNotFoundException ex) {
+        return buildErrorResponse(ex.getMessage(), ex.getErrorCode(), HttpStatus.NOT_FOUND);
+    }
     // Manejo general de errores de servicio
     @ExceptionHandler(ServiceException.class)
     public ResponseEntity<GenericResponseDto<String>> handleServiceException(ServiceException ex) {

@@ -1,14 +1,20 @@
 package pe.edu.idat.EF_FloresRoman.Model;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 @Entity
 @Table(name = "picking")
+@Getter
+@Setter
 public class Picking {
-    private Integer id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String estado;
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
     public String getEstado() {

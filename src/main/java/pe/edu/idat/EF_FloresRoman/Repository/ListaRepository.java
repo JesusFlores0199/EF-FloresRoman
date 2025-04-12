@@ -7,8 +7,8 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 public interface ListaRepository extends JpaRepository<Lista, Long> {
     List<ListaProjection> listarListasConDatosProducto();
-    @Query("SELECT l.cantidad FROM Lista l WHERE l.producto.id = :idProduct")
+    @Query("SELECT l.cantidad FROM Lista l WHERE l.producto.idProduct = :idProduct")
     Integer obtenerCantidadPorIdProducto(@Param("idProduct") Long idProduct);
-    @Query("SELECT l FROM Lista l WHERE l.producto.id = :idProduct")
+    @Query("SELECT l FROM Lista l WHERE l.producto.idProduct = :idProduct")
     List<Lista> findByProductId(@Param("idProduct") Long idProduct);
 }

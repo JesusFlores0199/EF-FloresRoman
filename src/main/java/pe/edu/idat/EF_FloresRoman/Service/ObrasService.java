@@ -1,51 +1,36 @@
 package pe.edu.idat.EF_FloresRoman.Service;
-import pe.edu.idat.EF_FloresRoman.Dto.ObraRegistroDto;
-import pe.edu.idat.EF_FloresRoman.Repository.ObrasRepository;
-import pe.edu.idat.EF_FloresRoman.Repository.Projection.ObraProjection;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import pe.edu.idat.EF_FloresRoman.Dto.ObraRegistroDto;
+import pe.edu.idat.EF_FloresRoman.Model.Obra;
+import pe.edu.idat.EF_FloresRoman.Repository.ObrasRepository;
 import java.util.List;
-import java.util.Optional;
 @Service
+@RequiredArgsConstructor
 public class ObrasService {
     private final ObrasRepository obrasRepository;
-
-    public ObrasService(ObrasRepository obrasRepository) {
-        this.obrasRepository = obrasRepository;
+    public List<Obra> getAllObras() {
+        return obrasRepository.findAll();
     }
-    // Listar todas las obras
-    public List<ObraProjection> obtenerTodasLasObras() {
-        return obrasRepository.obtenerTodasLasObras();
+    public Obra getObraById(Long id) {
+        return obrasRepository.findById(id).orElseThrow(() -> new RuntimeException("Obra no encontrada"));
     }
-    // Obtener una obra por su ID
-    public Optional<ObraProjection> obtenerObraPorId(Long id) {
-        return obrasRepository.obtenerObraPorId(id);
+    public Obra registrarObra(ObraRegistroDto dto) {
+        Obra obra = new Obra();
+        obra.setNomObra(dto.getNomObra());
+        obra.setPiso(dto.getPiso());
+        return obrasRepository.save(obra);
     }
-    // Registrar una nueva obra
-    public void registrarObra(ObraRegistroDto obraRegistroDto) {
-        try {
-            obrasRepository.registrarObra(obraRegistroDto.getNomObra(), obraRegistroDto.getPiso());
-        } catch (Exception e) {
-            throw new RuntimeException("Error al registrar la obra: " + e.getMessage());
-        }
+    public Obra actualizarObra(Long id, ObraRegistroDto dto) {
+        Obra obra = getObraById(id);
+        obra.setNomObra(dto.getNomObra());
+        obra.setPiso(dto.getPiso());
+        return obrasRepository.save(obra);
     }
-    // Actualizar una obra existente
-    public void actualizarObra(ObraRegistroDto obraRegistroDto) {
-        try {
-            obrasRepository.actualizarObra(
-                    obraRegistroDto.getId(),
-                    obraRegistroDto.getNomObra(),
-                    obraRegistroDto.getPiso()
-            );
-        } catch (Exception e) {
-            throw new RuntimeException("Error al actualizar la obra: " + e.getMessage());
-        }
+    public Obra actualizarObra(Obra obra) {
+        return obrasRepository.save(obra);
     }
-    // Eliminar una obra por su ID
     public void eliminarObra(Long id) {
-        try {
-            obrasRepository.eliminarObra(id);
-        } catch (Exception e) {
-            throw new RuntimeException("Error al eliminar la obra: " + e.getMessage());
-        }
+        obrasRepository.deleteById(id);
     }
 }

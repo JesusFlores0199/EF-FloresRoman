@@ -1,56 +1,53 @@
 package pe.edu.idat.EF_FloresRoman.Controller;
-import pe.edu.idat.EF_FloresRoman.Dto.ClienteRegistroDto;
-import pe.edu.idat.EF_FloresRoman.Service.ClienteService;
-import pe.edu.idat.EF_FloresRoman.Repository.Projection.ClienteProjection;
-import pe.edu.idat.EF_FloresRoman.Dto.GenericResponseDto;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pe.edu.idat.EF_FloresRoman.Dto.ClienteRegistroDto;
+import pe.edu.idat.EF_FloresRoman.Model.Cliente;
+import pe.edu.idat.EF_FloresRoman.Service.ClienteService;
 import java.util.List;
+import java.util.Map;
 @RestController
-@RequestMapping("/clientes")
+@RequestMapping("/api/clientes")
 public class ClientesController {
-    private final ClienteService clienteService;
-    public ClientesController(ClienteService clienteService) {
-        this.clienteService = clienteService;
+    @Autowired
+    private ClienteService clienteService;
+    // GET - Listar todos los clientes
+    @GetMapping
+    public ResponseEntity<List<Cliente>> getAllClientes() {
+        return ResponseEntity.ok(clienteService.getAllClientes());
     }
-    // Listar todos los clientes
-    @GetMapping("/listar")
-    public ResponseEntity<List<ClienteProjection>> obtenerTodosLosClientes() {
-        List<ClienteProjection> clientes = clienteService.obtenerTodosLosClientes();
-        return ResponseEntity.ok(clientes);
-    }
-    // Obtener un cliente por su ID
+    // GET - Obtener cliente por ID
     @GetMapping("/{id}")
-    public ResponseEntity<ClienteProjection> obtenerClientePorId(@PathVariable Integer id) {
-        return clienteService.obtenerClientePorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Cliente> getClienteById(@PathVariable Long id) {
+        return ResponseEntity.ok(clienteService.getClienteById(id));
     }
-    // Registrar un nuevo cliente
-    @PostMapping("/registrar")
-    public ResponseEntity<GenericResponseDto<String>> registrarCliente(@RequestBody ClienteRegistroDto clienteRegistroDto) {
-        clienteService.registrarCliente(clienteRegistroDto);
-        GenericResponseDto<String> response = new GenericResponseDto<>();
-        response.setCorrecto(true);
-        response.setMensaje("Cliente registrado exitosamente.");
-        return ResponseEntity.ok(response);
+    // POST - Registrar un nuevo cliente
+    @PostMapping
+    public ResponseEntity<Cliente> createCliente(@RequestBody ClienteRegistroDto dto) {
+        return ResponseEntity.ok(clienteService.registrarCliente(dto));
     }
-    // Actualizar un cliente existente
-    @PutMapping("/actualizar")
-    public ResponseEntity<GenericResponseDto<String>> actualizarCliente(@RequestBody ClienteRegistroDto clienteRegistroDto) {
-        clienteService.actualizarCliente(clienteRegistroDto);
-        GenericResponseDto<String> response = new GenericResponseDto<>();
-        response.setCorrecto(true);
-        response.setMensaje("Cliente actualizado exitosamente.");
-        return ResponseEntity.ok(response);
+    // PUT - Actualizar un cliente completo
+    @PutMapping("/{id}")
+    public ResponseEntity<Cliente> updateCliente(@PathVariable Long id, @RequestBody ClienteRegistroDto dto) {
+        return ResponseEntity.ok(clienteService.actualizarCliente(id, dto));
     }
-    // Eliminar un cliente por su ID
-    @DeleteMapping("/eliminar/{id}")
-    public ResponseEntity<GenericResponseDto<String>> eliminarCliente(@PathVariable Integer id) {
+    // PATCH - Actualizar parcialmente un cliente (solo nombreEmpresa)
+    @PatchMapping("/{id}")
+    public ResponseEntity<Cliente> patchCliente(@PathVariable Long id, @RequestBody Map<String, Object> camposActualizados) {
+        Cliente cliente = clienteService.getClienteById(id);
+
+        if (camposActualizados.containsKey("nombreEmpresa")) {
+            cliente.setNombreEmpresa((String) camposActualizados.get("nombreEmpresa"));
+        }
+
+        Cliente actualizado = clienteService.actualizarCliente(cliente);
+        return ResponseEntity.ok(actualizado);
+    }
+    // DELETE - Eliminar cliente
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteCliente(@PathVariable Long id) {
         clienteService.eliminarCliente(id);
-        GenericResponseDto<String> response = new GenericResponseDto<>();
-        response.setCorrecto(true);
-        response.setMensaje("Cliente eliminado exitosamente.");
-        return ResponseEntity.ok(response);
+        return ResponseEntity.noContent().build();
     }
 }

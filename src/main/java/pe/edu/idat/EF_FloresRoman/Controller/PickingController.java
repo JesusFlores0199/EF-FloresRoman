@@ -1,56 +1,41 @@
 package pe.edu.idat.EF_FloresRoman.Controller;
-import pe.edu.idat.EF_FloresRoman.Dto.PickingRegistroDto;
-import pe.edu.idat.EF_FloresRoman.Service.PickingService;
-import pe.edu.idat.EF_FloresRoman.Repository.Projection.PickingProjection;
-import pe.edu.idat.EF_FloresRoman.Dto.GenericResponseDto;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pe.edu.idat.EF_FloresRoman.Dto.PickingRegistroDto;
+import pe.edu.idat.EF_FloresRoman.Model.Picking;
+import pe.edu.idat.EF_FloresRoman.Service.PickingService;
 import java.util.List;
 @RestController
-@RequestMapping("/picking")
+@RequestMapping("/pickings")
+@RequiredArgsConstructor
 public class PickingController {
     private final PickingService pickingService;
-    public PickingController(PickingService pickingService) {
-        this.pickingService = pickingService;
+    @GetMapping
+    public List<Picking> listarPickings() {
+        return pickingService.getAllPickings();
     }
-    // Listar todos los registros de picking
-    @GetMapping("/listar")
-    public ResponseEntity<List<PickingProjection>> obtenerTodosLosPickings() {
-        List<PickingProjection> pickings = pickingService.obtenerTodosLosPickings();
-        return ResponseEntity.ok(pickings);
-    }
-    // Obtener un picking por su ID
     @GetMapping("/{id}")
-    public ResponseEntity<PickingProjection> obtenerPickingPorId(@PathVariable Integer id) {
-        return pickingService.obtenerPickingPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Picking> obtenerPickingPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(pickingService.getPickingById(id));
     }
-    // Registrar un nuevo picking
-    @PostMapping("/registrar")
-    public ResponseEntity<GenericResponseDto<String>> registrarPicking(@RequestBody PickingRegistroDto pickingRegistroDto) {
-        pickingService.registrarPicking(pickingRegistroDto);
-        GenericResponseDto<String> response = new GenericResponseDto<>();
-        response.setCorrecto(true);
-        response.setMensaje("Picking registrado exitosamente.");
-        return ResponseEntity.ok(response);
+    @PostMapping
+    public ResponseEntity<Picking> registrarPicking(@RequestBody PickingRegistroDto dto) {
+        return ResponseEntity.ok(pickingService.registrarPicking(dto));
     }
-    // Actualizar un picking existente
-    @PutMapping("/actualizar")
-    public ResponseEntity<GenericResponseDto<String>> actualizarPicking(@RequestBody PickingRegistroDto pickingRegistroDto) {
-        pickingService.actualizarPicking(pickingRegistroDto);
-        GenericResponseDto<String> response = new GenericResponseDto<>();
-        response.setCorrecto(true);
-        response.setMensaje("Picking actualizado exitosamente.");
-        return ResponseEntity.ok(response);
+    @PutMapping("/{id}")
+    public ResponseEntity<Picking> actualizarPicking(@PathVariable Long id, @RequestBody PickingRegistroDto dto) {
+        return ResponseEntity.ok(pickingService.actualizarPicking(id, dto));
     }
-    // Eliminar un picking por su ID
-    @DeleteMapping("/eliminar/{id}")
-    public ResponseEntity<GenericResponseDto<String>> eliminarPicking(@PathVariable Integer id) {
+    @PatchMapping("/{id}")
+    public ResponseEntity<Picking> actualizarPickingParcial(@PathVariable Long id, @RequestBody Picking picking) {
+        Picking PickingExistente = pickingService.getPickingById(id);
+        if (picking.getEstado() != null) PickingExistente.setEstado(picking.getEstado());
+        return ResponseEntity.ok(pickingService.actualizarPicking(PickingExistente));
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminarPicking(@PathVariable Long id) {
         pickingService.eliminarPicking(id);
-        GenericResponseDto<String> response = new GenericResponseDto<>();
-        response.setCorrecto(true);
-        response.setMensaje("Picking eliminado exitosamente.");
-        return ResponseEntity.ok(response);
+        return ResponseEntity.noContent().build();
     }
 }

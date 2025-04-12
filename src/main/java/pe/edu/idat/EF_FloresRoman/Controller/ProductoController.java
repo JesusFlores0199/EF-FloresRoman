@@ -1,4 +1,5 @@
 package pe.edu.idat.EF_FloresRoman.Controller;
+import org.springframework.security.access.prepost.PreAuthorize;
 import pe.edu.idat.EF_FloresRoman.Dto.GenericResponseDto;
 import pe.edu.idat.EF_FloresRoman.Dto.ProductoRegistroDto;
 import pe.edu.idat.EF_FloresRoman.Service.ProductoService;
@@ -16,6 +17,7 @@ public class ProductoController {
         this.productoService = productoService;
     }
     // Listar todos los productos
+    @PreAuthorize("hasAnyRole('ADMIN', 'INGENIERO')")
     @GetMapping("/listar")
     public ResponseEntity<List<ProductProjection>> obtenerTodosLosProductos(
             @RequestParam(required = false) Long unitsInStock) {
@@ -23,6 +25,7 @@ public class ProductoController {
         return ResponseEntity.ok(productos);
     }
     // Obtener un producto por su ID
+    @PreAuthorize("hasAnyRole('ADMIN', 'INGENIERO')")
     @GetMapping("/{id}")
     public ResponseEntity<ProductProjection> obtenerProductoPorId(@PathVariable Integer id) {
         List<ProductProjection> productos = productoService.obtenerTodosLosProductos(null);
@@ -33,6 +36,7 @@ public class ProductoController {
                 .orElse(ResponseEntity.notFound().build());
     }
     // Registrar un nuevo producto
+    @PreAuthorize("hasAnyRole('ADMIN', 'INGENIERO')")
     @PostMapping("/registrar")
     public ResponseEntity<GenericResponseDto<String>> registrarProducto(@Valid @RequestBody ProductoRegistroDto productoRegistroDto, BindingResult result) {
         GenericResponseDto<String> response = new GenericResponseDto<>();
@@ -55,6 +59,7 @@ public class ProductoController {
         return ResponseEntity.ok(response);
     }
     // Actualizar un producto existente
+    @PreAuthorize("hasAnyRole('ADMIN', 'INGENIERO')")
     @PutMapping("/actualizar")
     public ResponseEntity<GenericResponseDto<String>> actualizarProducto(@RequestBody ProductoRegistroDto productoRegistroDto) {
         GenericResponseDto<String> response = new GenericResponseDto<>();
@@ -71,6 +76,7 @@ public class ProductoController {
         return ResponseEntity.ok(response);
     }
     // Eliminar un producto por su ID
+    @PreAuthorize("hasAnyRole('ADMIN', 'INGENIERO')")
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<GenericResponseDto<String>> eliminarProducto(@PathVariable Long id) {
         GenericResponseDto<String> response = new GenericResponseDto<>();

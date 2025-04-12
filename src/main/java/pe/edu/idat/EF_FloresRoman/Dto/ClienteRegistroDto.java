@@ -1,11 +1,13 @@
 package pe.edu.idat.EF_FloresRoman.Dto;
-import javax.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
+@Getter
+@Setter
 public class ClienteRegistroDto {
-    private Integer id;
-    @NotNull(message = "Nombre de la empresa")
+    private Long idCliente;
     private String nombreEmpresa;
-    public Integer getId() {return id;}
-    public void setId(Integer id) {this.id = id;}
+    public Long getIdCliente() {return idCliente;}
+    public void setIdCliente(Long idCliente) {this.idCliente = idCliente;}
     public String getNombreEmpresa() {return nombreEmpresa;}
     public void setNombreEmpresa(String nombreEmpresa) {this.nombreEmpresa = nombreEmpresa;}
 }

@@ -6,14 +6,19 @@ import java.math.BigDecimal;
 public class Producto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_product")
     private Long idProduct; // Cambio de id_product a idProduct para mantener consistencia con DTO
     @Column(nullable = false, unique = true)
     private String codigo;
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String descripcion;
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private BigDecimal peso;
+    @Column(name = "stock")
+    private Long stock;
     // Getters y Setters
+    public Long getStock() {return stock;}
+    public void setStock(Long stock) {this.stock = stock;}
     public Long getIdProduct() {return idProduct;}
     public void setIdProduct(Long idProduct) {this.idProduct = idProduct;}
     public String getCodigo() {return codigo;}

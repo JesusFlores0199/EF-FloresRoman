@@ -1,56 +1,36 @@
 package pe.edu.idat.EF_FloresRoman.Service;
-import pe.edu.idat.EF_FloresRoman.Dto.PickingRegistroDto;
-import pe.edu.idat.EF_FloresRoman.Repository.PickingRepository;
-import pe.edu.idat.EF_FloresRoman.Repository.Projection.PickingProjection;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import pe.edu.idat.EF_FloresRoman.Dto.PickingRegistroDto;
+import pe.edu.idat.EF_FloresRoman.Model.Picking;
+import pe.edu.idat.EF_FloresRoman.Repository.PickingRepository;
 import java.util.List;
-import java.util.Optional;
 @Service
+@RequiredArgsConstructor
 public class PickingService {
     private final PickingRepository pickingRepository;
-    public PickingService(PickingRepository pickingRepository) {
-        this.pickingRepository = pickingRepository;
+
+    public List<Picking> getAllPickings() {
+        return pickingRepository.findAll();
     }
-    // Listar todos los pickings
-    public List<PickingProjection> obtenerTodosLosPickings() {
-        return pickingRepository.obtenerTodosLosPickings();
+    public Picking getPickingById(Long id) {
+        return pickingRepository.findById(id).orElseThrow(() -> new RuntimeException("Picking no encontrado"));
     }
-    // Obtener un picking por su ID
-    public Optional<PickingProjection> obtenerPickingPorId(Integer id) {
-        return pickingRepository.obtenerPickingPorId(id);
+    public Picking registrarPicking(PickingRegistroDto dto) {
+        Picking picking = new Picking();
+        picking.setEstado(dto.getEstado());
+        return pickingRepository.save(picking);
     }
-    // Registrar un picking
-    public void registrarPicking(PickingRegistroDto pickingRegistroDto) {
-        try {
-            pickingRepository.registrarPicking(
-                    pickingRegistroDto.getEstado(),
-                    pickingRegistroDto.getFecha().toString(),
-                    pickingRegistroDto.getHora()
-            );
-        } catch (Exception e) {
-            throw new RuntimeException("Error al registrar el picking: " + e.getMessage());
-        }
+    public Picking actualizarPicking(Long id, PickingRegistroDto dto) {
+        Picking picking = getPickingById(id);
+        picking.setEstado(dto.getEstado());
+        return pickingRepository.save(picking);
     }
-    // Actualizar un picking
-    public void actualizarPicking(PickingRegistroDto pickingRegistroDto) {
-        try {
-            pickingRepository.actualizarPicking(
-                    pickingRegistroDto.getId(),
-                    pickingRegistroDto.getEstado(),
-                    pickingRegistroDto.getFecha().toString(),
-                    pickingRegistroDto.getHora()
-            );
-        } catch (Exception e) {
-            throw new RuntimeException("Error al actualizar el picking: " + e.getMessage());
-        }
+    public Picking actualizarPicking(Picking picking) {
+        return pickingRepository.save(picking);
     }
-    // Eliminar un picking
-    public void eliminarPicking(Integer id) {
-        try {
-            pickingRepository.eliminarPicking(id);
-        } catch (Exception e) {
-            throw new RuntimeException("Error al eliminar el picking: " + e.getMessage());
-        }
+    public void eliminarPicking(Long id) {
+        pickingRepository.deleteById(id);
     }
 }
 //listarPicking() → Retorna una lista con todos los registros de Picking.

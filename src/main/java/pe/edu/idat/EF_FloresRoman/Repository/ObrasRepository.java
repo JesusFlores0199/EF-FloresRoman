@@ -13,7 +13,7 @@ public interface ObrasRepository extends JpaRepository<Obra, Long> {
     @Query("SELECT o FROM Obra o")
     List<ObraProjection> obtenerTodasLasObras();
     // Obtener una obra por su ID
-    @Query("SELECT o FROM Obra o WHERE o.id = :id")
+    @Query("SELECT o FROM Obra o WHERE o.idObra = :id")
     Optional<ObraProjection> obtenerObraPorId(@Param("id") Long Long);
     // Registrar una nueva obra
     @Modifying

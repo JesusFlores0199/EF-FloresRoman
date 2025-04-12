@@ -1,14 +1,16 @@
 package pe.edu.idat.EF_FloresRoman.Dto;
-import javax.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
 import java.time.LocalDateTime;
+@Getter
+@Setter
 public class PickingRegistroDto {
-    private Integer id;
-    @NotNull(message = "El estado no puede ser nulo")
+    private Long id;
     private String estado;
     private LocalDateTime fecha;
     private String hora;
-    public Integer getId() {return id;}
-    public void setId(Integer id) {this.id = id;}
+    public Long getId() {return id;}
+    public void setId(Long id) {this.id = id;}
     public String getEstado() {return estado;}
     public void setEstado(String estado) {this.estado = estado;}
     public LocalDateTime getFecha() {return fecha;}

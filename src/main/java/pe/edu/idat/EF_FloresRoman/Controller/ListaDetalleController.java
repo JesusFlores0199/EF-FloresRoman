@@ -1,43 +1,34 @@
 package pe.edu.idat.EF_FloresRoman.Controller;
 import pe.edu.idat.EF_FloresRoman.Dto.ListaDetalleDto;
+import pe.edu.idat.EF_FloresRoman.Dto.ListaDetalleRegistroDto;
 import pe.edu.idat.EF_FloresRoman.Model.ListaDetalle;
 import pe.edu.idat.EF_FloresRoman.Service.ListaDetalleService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 @RestController
-@RequestMapping("/listaDetalle")
+@RequestMapping("/api/listadetalle")
+@RequiredArgsConstructor
 public class ListaDetalleController {
-    private final ListaDetalleService listaDetalleService;
-    @Autowired
-    public ListaDetalleController(ListaDetalleService listaDetalleService) {
-        this.listaDetalleService = listaDetalleService;
-    }
+    private final ListaDetalleService service;
     @PostMapping
-    public ResponseEntity<ListaDetalle> createListaDetalle(@RequestBody ListaDetalleDto listaDetalleDto) {
-        ListaDetalle savedListaDetalle = listaDetalleService.createListaDetalle(listaDetalleDto);
-        return new ResponseEntity<>(savedListaDetalle, HttpStatus.CREATED);
+    public ListaDetalle registrar(@RequestBody ListaDetalleRegistroDto dto) {
+        return service.registrarListaDetalle(dto);
     }
     @PutMapping("/{id}")
-    public ResponseEntity<ListaDetalle> updateListaDetalle(@PathVariable Long id, @RequestBody ListaDetalleDto listaDetalleDto) {
-        ListaDetalle updatedListaDetalle = listaDetalleService.updateListaDetalle(id, listaDetalleDto);
-        return ResponseEntity.ok(updatedListaDetalle);
-    }
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteListaDetalle(@PathVariable Long id) {
-        listaDetalleService.deleteListaDetalle(id);
-        return ResponseEntity.noContent().build();
-    }
-    @GetMapping("/{id}")
-    public ResponseEntity<ListaDetalle> getListaDetalleById(@PathVariable Long id) {
-        ListaDetalle listaDetalle = listaDetalleService.getListaDetalleById(id);
-        return ResponseEntity.ok(listaDetalle);
+    public ListaDetalle actualizar(@PathVariable Long id, @RequestBody ListaDetalleRegistroDto dto) {
+        return service.actualizarListaDetalle(id, dto);
     }
     @GetMapping
-    public ResponseEntity<List<ListaDetalle>> getAllListaDetalles() {
-        List<ListaDetalle> listaDetalles = listaDetalleService.getAllListaDetalles();
-        return ResponseEntity.ok(listaDetalles);
+    public List<ListaDetalleDto> listarTodos() {
+        return service.obtenerTodos();
+    }
+    @GetMapping("/{id}")
+    public ListaDetalle obtenerPorId(@PathVariable Long id) {
+        return service.obtenerPorId(id);
+    }
+    @DeleteMapping("/{id}")
+    public void eliminar(@PathVariable Long id) {
+        service.eliminarListaDetalle(id);
     }
 }
